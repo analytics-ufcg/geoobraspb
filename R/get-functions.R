@@ -84,24 +84,24 @@ paleta.de.cores <- function(paleta = "YlOrRd", dado) {
   colors <- colorNumeric(paleta, domain = c(min(dado, na.rm = T), max(dado, na.rm = T)))
 }
 
-adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, janela, titulo) {
-    addPolygons(mapa,
-                opacity = 0.5,
-                weight = 1,
-                fillColor = cores(valor.municipio),
-                color = "black",
-                label = tooltip,
-                popup = janela,
-                fillOpacity = 1,
-                layerId = ~GEOCODIG_M) %>%
+adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, janela, titulo, cor.borda, largura.borda) {
+  addPolygons(mapa,
+              opacity = 0.5,
+              weight = largura.borda,
+              fillColor = cores(valor.municipio),
+              color = cor.borda,
+              label = tooltip,
+              popup = janela,
+              fillOpacity = 1,
+              group = "municipios-poligono") %>%
     addLegend(position = "bottomright", pal = cores, values = valor.municipio,
               title = titulo,
               opacity = 1)
 }
 
-cria.mapa <- function(dado, valor.municipio, tooltip, janela, cores, titulo) {
+cria.mapa <- function(dado, valor.municipio, tooltip, janela, cores, titulo, cor.borda, largura.borda) {
   dado %>%
     leaflet() %>%
     addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
-    adiciona.poligonos.e.legenda(cores, valor.municipio, tooltip, janela, titulo)
+    adiciona.poligonos.e.legenda(cores, valor.municipio, tooltip, janela, titulo, cor.borda, largura.borda)
 }
