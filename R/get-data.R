@@ -13,6 +13,12 @@
 #   Check Package:             'Ctrl + Shift + E'
 #   Test Package:              'Ctrl + Shift + T'
 
+library(tidyverse)
+library(RPostgreSQL)
+library(rgdal)
+library(rgeos)
+library(sp)
+
 get.data <- function(con1, con2, mapa_paraiba) {
   obra <<- dbGetQuery(con1, "select * from t_obra")
   acompanhamento <<- dbGetQuery(con1, "select * from t_acompanhamento")

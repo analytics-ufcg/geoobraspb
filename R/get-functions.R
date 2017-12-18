@@ -1,3 +1,9 @@
+library(tidyverse)
+library(RPostgreSQL)
+library(rgdal)
+library(rgeos)
+library(sp)
+
 is.dentro.pb <- function(lat,lon) {
   lon.min <- -38.770132
   lat.min <- -8.316999
@@ -10,10 +16,7 @@ is.dentro.municipio <- function(lat, lon, codigo_ibge, mapa_paraiba) {
   mapa_municipio <- subset(mapa_paraiba, GEOCODIG_M == codigo_ibge)
   point <- data.frame(lat = lon, lon = lat)
   point_spatial <- SpatialPoints(point, proj4string = CRS(proj4string(mapa_paraiba)))
-  #plot(mapa_municipio)
-  #plot(point_spatial, add=T, col="red")
   return(gContains(mapa_municipio, point_spatial))
-  #teste <- over(point_spatial, mapa_municipio) PEGA A LINHA DO DATA FRAME DO MAPA QUE CORRESPONDE AO MUNICIPIO DO PONTO
 }
 
 coord_divide <- function(value, parameter) {
