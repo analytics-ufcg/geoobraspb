@@ -131,7 +131,9 @@ get.popup.georref <- function(nome.munic, total.obras, qtde.georref, porc.georre
          "</br>Quantidade de obras georreferenciadas: ",
          qtde.georref,
          "</br>Obras georreferenciadas (%): ",
-         round(porc.georref, 2), "%")
+         round(porc.georref, 2), "%",
+         "</br>Obras com coordenadas fora do município: ",
+         round(possui.georref.mas.tem.coordenadas.fora.municipio, 2), "%")
 }
 
 paleta.de.cores <- function(paleta = "YlOrRd", dado, reverse = FALSE) {
