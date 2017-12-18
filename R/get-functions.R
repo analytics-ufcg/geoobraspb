@@ -135,7 +135,7 @@ paleta.de.cores <- function(paleta = "YlOrRd", dado, reverse = FALSE) {
   colors <- colorNumeric(paleta, domain = c(min(dado, na.rm = T), max(dado, na.rm = T)), reverse = reverse)
 }
 
-adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, janela, titulo, cor.borda, largura.borda) {
+adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, janela, titulo, cor.borda = "black", largura.borda = 1) {
   addPolygons(mapa,
               opacity = 0.5,
               weight = largura.borda,
