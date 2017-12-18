@@ -123,7 +123,7 @@ get.porc.municipios.georref <- function(dado, municipio.selecionado = 'João Pes
     )
 }
 
-get.popup.georref <- function(nome.munic, total.obras, qtde.georref, porc.georref) {
+get.popup.georref <- function(nome.munic, total.obras, qtde.georref, porc.georref, qtde.coordenadas.fora.municipio) {
   paste0("Município: ",
          nome.munic,
          "</br>Total de obras: ",
@@ -133,7 +133,7 @@ get.popup.georref <- function(nome.munic, total.obras, qtde.georref, porc.georre
          "</br>Obras georreferenciadas (%): ",
          round(porc.georref, 2), "%",
          "</br>Obras com coordenadas fora do município: ",
-         round(possui.georref.mas.tem.coordenadas.fora.municipio, 2), "%")
+         qtde.coordenadas.fora.municipio)
 }
 
 paleta.de.cores <- function(paleta = "YlOrRd", dado, reverse = FALSE) {
