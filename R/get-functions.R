@@ -80,8 +80,45 @@ centroide <- function(localizacao) {
   coords
 }
 
-paleta.de.cores <- function(paleta = "YlOrRd", dado) {
-  colors <- colorNumeric(paleta, domain = c(min(dado, na.rm = T), max(dado, na.rm = T)))
+get.mapa.paraiba.georref <- function(mapa_paraiba, municipios.georref.prop) {
+  mapa_paraiba_georreferenciada <- mapa_paraiba
+
+  mapa_paraiba_georreferenciada@data <- mapa_paraiba_georreferenciada@data %>%
+    left_join(municipios.georref.prop,
+              by = c("GEOCODIG_M" = "codigo_ibge"))
+
+  mapa_paraiba_georreferenciada
+}
+
+get.prop.municipios.georref <- function(dado, municipio.selecionado, ano.inicial = 0, ano.final = 3000) {
+  dado %>%
+    filter(ano >= ano.inicial,
+           ano <= ano.final) %>%
+    group_by(codigo_ibge, nome.x) %>%
+    summarise(
+      total.obras = n(),
+      qtde.georref = sum(!is.inputado),
+      prop.georref = (qtde.georref / total.obras) * 100
+    ) %>%
+    mutate(
+      cor.borda = if_else(nome.x == municipio.selecionado, "blue", "black"),
+      largura.borda = if_else(nome.x == municipio.selecionado, 5, 1)
+    )
+}
+
+get.popup.georref <- function(nome.munic, total.obras, qtde.georref, prop.georref) {
+  paste0("Município: ",
+         nome.munic,
+         "</br>Total de obras: ",
+         total.obras,
+         "</br>Quantidade de obras georreferenciadas: ",
+         qtde.georref,
+         "</br>Proporção de obras georreferenciadas: ",
+         round(prop.georref, 2), "%")
+}
+
+paleta.de.cores <- function(paleta = "YlOrRd", dado, reverse = FALSE) {
+  colors <- colorNumeric(paleta, domain = c(min(dado, na.rm = T), max(dado, na.rm = T)), reverse = reverse)
 }
 
 adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, janela, titulo, cor.borda, largura.borda) {
@@ -104,4 +141,23 @@ cria.mapa <- function(dado, valor.municipio, tooltip, janela, cores, titulo, cor
     leaflet() %>%
     addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
     adiciona.poligonos.e.legenda(cores, valor.municipio, tooltip, janela, titulo, cor.borda, largura.borda)
+}
+
+plot.ranking <- function(dado, municipio) {
+  renderPlot({
+    municipio.selecionado <- dado %>% filter(nome.x == municipio)
+
+    dado %>%
+      arrange(-prop.georref) %>%
+      head(24) %>%
+      rbind(municipio.selecionado) %>%
+      distinct() %>%
+      ggplot(aes(x = reorder(nome.x, prop.georref), y = prop.georref, fill = (nome.x == municipio))) +
+      geom_bar(stat="identity") +
+      guides(fill=FALSE) +
+      labs(x = "Município",
+           y = "Proporção de obras georreferenciadas",
+           title = "Top 24 municípios que mais \ngeorreferenciam + selecionado") +
+      coord_flip()
+  })
 }
