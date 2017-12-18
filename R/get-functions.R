@@ -6,7 +6,7 @@ is.dentro.pb <- function(lat,lon) {
   return(lon.min < lon && lon < lon.max && lat.min < lat && lat < lat.max)
 }
 
-is.dentro.municipio <- function(lat, lon, codigo_ibge) {
+is.dentro.municipio <- function(lat, lon, codigo_ibge, mapa_paraiba) {
   mapa_municipio <- subset(mapa_paraiba, GEOCODIG_M == codigo_ibge)
   point <- data.frame(lat = lon, lon = lat)
   point_spatial <- SpatialPoints(point, proj4string = CRS(proj4string(mapa_paraiba)))

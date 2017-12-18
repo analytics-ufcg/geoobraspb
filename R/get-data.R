@@ -13,7 +13,7 @@
 #   Check Package:             'Ctrl + Shift + E'
 #   Test Package:              'Ctrl + Shift + T'
 
-get.data <- function(con1, con2) {
+get.data <- function(con1, con2, mapa_paraiba) {
   obra <<- dbGetQuery(con1, "select * from t_obra")
   acompanhamento <<- dbGetQuery(con1, "select * from t_acompanhamento")
   complexo <<- dbGetQuery(con1, "select * from t_complexo")
@@ -53,7 +53,7 @@ get.data <- function(con1, con2) {
         !is.na(lat) & !is.na(lon) & codigo_ibge != 0 & !is.na(codigo_ibge)
       ) %>%
       mutate(
-        dentro_municipio =  is.dentro.municipio(lat, lon, codigo_ibge)
+        dentro_municipio =  is.dentro.municipio(lat, lon, codigo_ibge, mapa_paraiba)
       )
 
   obra.georref.centroide.sumarizado <<- obra.georref.corrigido %>%
