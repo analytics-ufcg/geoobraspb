@@ -58,7 +58,7 @@ get.data <- function(con1, con2, mapa_paraiba) {
 
   obra.georref.centroide.sumarizado <<- obra.georref.corrigido %>%
       group_by(fk_obra) %>%
-      summarise(lat = mean(lat), lon = mean(lon)) %>%
+      mutate(lat = mean(lat), lon = mean(lon)) %>%
       select(-valor_georeferenciamento) %>%
       filter(!duplicated(fk_obra))
 }
