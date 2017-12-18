@@ -123,7 +123,7 @@ get.porc.municipios.georref <- function(dado, municipio.selecionado = 'João Pes
     )
 }
 
-get.popup.georref <- function(nome.munic, total.obras, qtde.georref, porc.georref) {
+get.popup.georref <- function(nome.munic, total.obras, qtde.georref, porc.georref, possui.georref.mas.tem.coordenadas.fora.municipio) {
   paste0("Município: ",
          nome.munic,
          "</br>Total de obras: ",
@@ -180,7 +180,8 @@ plot.ranking <- function(dado, municipio) {
     scale_fill_distiller(palette = "YlOrRd") +
     coord_flip() +
     theme(legend.position="bottom")
-  if ((municipios.georref.porc %>% arrange(-porc.georref) %>% head(25) %>% filter(municipio == nome.x) %>% ungroup() %>% count()) == 0) {
+
+  if ((dado %>% arrange(-porc.georref) %>% head(25) %>% filter(municipio == nome.x) %>% ungroup() %>% count()) == 0) {
     plot <- plot +
       labs(title = "Top 24 municípios que mais \ngeorreferenciam + selecionado") +
       facet_grid(nome.x == municipio ~ ., scales = "free_y", space = "free_y")
