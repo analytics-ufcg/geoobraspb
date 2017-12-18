@@ -6,6 +6,16 @@ is.dentro.pb <- function(lat,lon) {
   return(lon.min < lon && lon < lon.max && lat.min < lat && lat < lat.max)
 }
 
+is.dentro.municipio <- function(lat, lon, codigo_ibge) {
+  mapa_municipio <- subset(mapa_paraiba, GEOCODIG_M == codigo_ibge)
+  point <- data.frame(lat = lon, lon = lat)
+  point_spatial <- SpatialPoints(point, proj4string = CRS(proj4string(mapa_paraiba)))
+  #plot(mapa_municipio)
+  #plot(point_spatial, add=T, col="red")
+  return(gContains(mapa_municipio, point_spatial))
+  #teste <- over(point_spatial, mapa_municipio) PEGA A LINHA DO DATA FRAME DO MAPA QUE CORRESPONDE AO MUNICIPIO DO PONTO
+}
+
 coord_divide <- function(value, parameter) {
   return(
     ifelse(value < parameter,
@@ -90,12 +100,16 @@ get.mapa.paraiba.georref <- function(mapa_paraiba, municipios.georref.prop) {
   mapa_paraiba_georreferenciada
 }
 
-get.prop.municipios.georref <- function(dado, municipio.selecionado, ano.inicial = 0, ano.final = 3000) {
+get.prop.municipios.georref <- function(dado, municipio.selecionado = 'João Pessoa', ano.inicial = 0, ano.final = 3000) {
   dado %>%
     filter(ano >= ano.inicial,
            ano <= ano.final) %>%
     group_by(codigo_ibge, nome.x) %>%
     summarise(
+      possui.georref.mas.tem.coordenadas.fora.municipio =
+        sum(
+          ifelse(!is.na(dentro_municipio) & dentro_municipio == FALSE, 1, 0)
+        ),
       total.obras = n(),
       qtde.georref = sum(!is.inputado),
       prop.georref = (qtde.georref / total.obras) * 100
@@ -136,7 +150,7 @@ adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, 
               opacity = 1)
 }
 
-cria.mapa <- function(dado, valor.municipio, tooltip, janela, cores, titulo, cor.borda, largura.borda) {
+cria.mapa <- function(dado, valor.municipio, tooltip, janela, cores, titulo, cor.borda = "black", largura.borda = 1) {
   dado %>%
     leaflet() %>%
     addProviderTiles(providers$Esri.WorldGrayCanvas) %>%

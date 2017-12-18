@@ -9,6 +9,9 @@ Description: More about what it does (maybe more than one line)
 Imports:
 	tidyverse,
 	RPostgreSQL
+	rgdal,
+	rgeos,
+  sp
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true

@@ -48,11 +48,18 @@ get.data <- function(con1, con2) {
       ) %>%
       filter(
           is.dentro.pb(lat,lon)
+      ) %>%
+      filter(
+        !is.na(lat) & !is.na(lon) & codigo_ibge != 0 & !is.na(codigo_ibge)
+      ) %>%
+      mutate(
+        dentro_municipio =  is.dentro.municipio(lat, lon, codigo_ibge)
       )
 
   obra.georref.centroide.sumarizado <<- obra.georref.corrigido %>%
       group_by(fk_obra) %>%
       summarise(lat = mean(lat), lon = mean(lon)) %>%
+      select(-valor_georeferenciamento) %>%
       filter(!duplicated(fk_obra))
 }
 
@@ -66,11 +73,11 @@ get.georreferencia.inputada <- function(obra, localidade, tipos.das.obras, munic
         ) %>%
         left_join(tipos.das.obras, by = c("fk_tipo_obra" = "id")) %>%
         left_join(municipios, by = "codigo_ibge") %>%
-        left_join(obra.georref.centroide.sumarizado %>% select(fk_obra,lat,lon), by = c("id" = "fk_obra")) %>%
+        left_join(obra.georref.centroide.sumarizado %>% select(fk_obra,lat,lon, dentro_municipio), by = c("id" = "fk_obra")) %>%
         mutate(
             lat = ifelse(is.na(lat.y), lat.x, lat.y),
             lon = ifelse(is.na(lon.y), lon.x, lon.y),
-            is.inputado = (is.na(lat.y) & is.na(lon.y))
+            is.inputado = ((is.na(lat.y) & is.na(lon.y)) | (!is.na(dentro_municipio) & dentro_municipio == FALSE))
         ) %>% select(-lat.x, -lat.y, -lon.x, -lon.y)
 }
 
