@@ -163,20 +163,31 @@ cria.mapa <- function(dado, valor.municipio, tooltip, janela, cores, titulo, cor
 }
 
 plot.ranking <- function(dado, municipio) {
-  renderPlot({
-    municipio.selecionado <- dado %>% filter(nome.x == municipio)
+  municipio.selecionado <- dado %>% filter(nome.x == municipio)
 
-    dado %>%
-      arrange(-porc.georref) %>%
-      head(24) %>%
-      rbind(municipio.selecionado) %>%
-      distinct() %>%
-      ggplot(aes(x = reorder(nome.x, porc.georref), y = porc.georref, fill = (nome.x == municipio))) +
-      geom_bar(stat="identity") +
-      guides(fill=FALSE) +
-      labs(x = "Município",
-           y = "Obras georreferenciadas (%)",
-           title = "Top 24 municípios que mais \ngeorreferenciam + selecionado") +
-      coord_flip()
-  })
+  plot <- dado %>%
+    arrange(-porc.georref) %>%
+    head(24) %>%
+    rbind(municipio.selecionado) %>%
+    distinct() %>%
+    ggplot(aes(x = reorder(nome.x, porc.georref),
+               y = porc.georref,
+               fill = porc.georref)) +
+    geom_bar(stat="identity") +
+    guides(fill=FALSE, colour = FALSE) +
+    labs(x = "Município",
+         y = "Obras georreferenciadas (%)") +
+    scale_fill_distiller(palette = "YlOrRd") +
+    coord_flip() +
+    theme(legend.position="bottom")
+  if ((municipios.georref.porc %>% arrange(-porc.georref) %>% head(25) %>% filter(municipio == nome.x) %>% ungroup() %>% count()) == 0) {
+    plot <- plot +
+      labs(title = "Top 24 municípios que mais \ngeorreferenciam + selecionado") +
+      facet_grid(nome.x == municipio ~ ., scales = "free_y", space = "free_y")
+  } else {
+    plot <- plot +
+      labs(title = "Top 25 municípios que mais \ngeorreferenciam")
+  }
+  plot +
+    theme_bw()
 }
