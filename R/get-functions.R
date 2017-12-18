@@ -16,7 +16,7 @@ is.dentro.municipio <- function(lat, lon, codigo_ibge, mapa_paraiba) {
   mapa_municipio <- subset(mapa_paraiba, GEOCODIG_M == codigo_ibge)
   point <- data.frame(lat = lon, lon = lat)
   point_spatial <- SpatialPoints(point, proj4string = CRS(proj4string(mapa_paraiba)))
-  return(gContains(mapa_municipio, point_spatial))
+  return(rgeos::gContains(mapa_municipio, point_spatial))
 }
 
 coord_divide <- function(value, parameter) {
