@@ -189,7 +189,9 @@ plot.ranking <- function(dado, municipio) {
     coord_flip() +
     theme(legend.position="bottom")
 
-  if ((dado %>% arrange(-porc.georref) %>% head(25) %>% filter(municipio == nome.x) %>% ungroup() %>% count()) == 0) {
+  top.25 <- dado %>% arrange(-porc.georref) %>% head(25)
+
+  if ((top.25 %>% filter(municipio == nome.x) %>% ungroup() %>% count()) == 0) {
     plot <- plot +
       labs(title = "Top 24 municípios que mais \ngeorreferenciam + selecionado") +
       facet_grid(nome.x == municipio ~ ., scales = "free_y", space = "free_y")
@@ -197,6 +199,12 @@ plot.ranking <- function(dado, municipio) {
     plot <- plot +
       labs(title = "Top 25 municípios que mais \ngeorreferenciam")
   }
+
   plot +
+    geom_text(
+      data = filter(dado, municipio == nome.x),
+      aes(label = "selecionado"),
+      y = max(top.25$porc.georref) / 2
+    ) +
     theme_bw()
 }
