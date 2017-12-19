@@ -123,7 +123,7 @@ get.porc.municipios.georref <- function(dado, municipio.selecionado = 'João Pes
     )
 }
 
-get.top.3.municipios.georref <- function(dado) {
+get.top.3.municipios.georref <- function(dado, municipios) {
   dado %>%
     filter(codigo_ibge != 0) %>%
     ungroup() %>%
