@@ -123,22 +123,6 @@ get.porc.municipios.georref <- function(dado, municipio.selecionado = 'João Pes
     )
 }
 
-get.top.3.municipios.georref <- function(dado, municipios) {
-  dado %>%
-    filter(codigo_ibge != 0) %>%
-    ungroup() %>%
-    top_n(3, porc.georref) %>%
-    left_join(municipios, by = "codigo_ibge")
-}
-
-get.top.3.municipios.custo.efetivo <- function(dado, municipios) {
-  dado %>%
-    filter(codigo_ibge != 0) %>%
-    ungroup() %>%
-    top_n(-3, custo.efetivo) %>%
-    left_join(municipios, by = "codigo_ibge")
-}
-
 get.top.10.tipo.obra <- function(dado) {
   dado %>%
     group_by(tipo_obra) %>%
