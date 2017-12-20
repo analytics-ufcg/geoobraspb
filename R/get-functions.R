@@ -131,6 +131,67 @@ get.top.3.municipios.georref <- function(dado, municipios) {
     left_join(municipios, by = "codigo_ibge")
 }
 
+get.top.3.municipios.custo.efetivo <- function(dado, municipios) {
+  dado %>%
+    filter(codigo_ibge != 0) %>%
+    ungroup() %>%
+    top_n(-3, custo.efetivo) %>%
+    left_join(municipios, by = "codigo_ibge")
+}
+
+get.top.10.tipo.obra <- function(dado) {
+  dado %>%
+    group_by(tipo_obra) %>%
+    summarise(quantidade.tipo.obra = n()) %>%
+    top_n(10, quantidade.tipo.obra) %>%
+    arrange(tipo_obra) %>%
+    pull(tipo_obra)
+}
+
+get.custos.efetivos <- function(dado) {
+  dado.filtrado <- dado %>%
+    filter(valor_obra > 1000,
+           dimensao > 50) %>%
+    rename(nome = nome.x,
+           tipo_obra = nome.y) %>%
+    filter(tipo_obra != "OUTRAS")
+
+  top.10.tipo.obra <- get.top.10.tipo.obra(dado.filtrado)
+
+  dado.filtrado %>%
+    filter(tipo_obra %in% top.10.tipo.obra)
+}
+
+get.custo.efetivo.tipo.obra <- function(dado, municipio.selecionado, tipo.obra = "PAVIMENTAÇÃO PARALEPÍPEDO", ano.inicial = 0, ano.final = 3000) {
+  dado %>%
+    filter(
+      tipo_obra == tipo.obra,
+      ano >= ano.inicial,
+      ano <= ano.final
+    ) %>%
+    select(valor_obra, dimensao, nome, codigo_ibge) %>%
+    mutate(custo.efetivo = valor_obra/dimensao) %>%
+    group_by(nome, codigo_ibge) %>%
+    summarise(
+      custo.efetivo = median(custo.efetivo),
+      custo.efetivo.log = log(custo.efetivo)
+    ) %>%
+    mutate(
+      cor.borda = if_else(nome == municipio.selecionado, "blue", "black"),
+      largura.borda = if_else(nome == municipio.selecionado, 5, 1)
+    )
+}
+
+get.mapa.paraiba.custo.efetivo <- function(mapa_paraiba, municipios.custo.efetivo) {
+  mapa_paraiba_custo_efetivo <- mapa_paraiba
+
+  mapa_paraiba_custo_efetivo@data <- mapa_paraiba_custo_efetivo@data %>%
+    left_join(municipios.custo.efetivo,
+              by = c("GEOCODIG_M" = "codigo_ibge"))
+
+  mapa_paraiba_custo_efetivo
+}
+
 get.popup.georref <- function(nome.munic, total.obras, qtde.georref, porc.georref, qtde.coordenadas.fora.municipio) {
   paste0("Município: ",
          nome.munic,
@@ -148,7 +209,7 @@ paleta.de.cores <- function(paleta = "YlOrRd", dado, reverse = FALSE) {
   colors <- colorNumeric(paleta, domain = c(min(dado, na.rm = T), max(dado, na.rm = T)), reverse = reverse)
 }
 
-adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, janela, titulo, cor.borda = "black", largura.borda = 1) {
+adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, janela, titulo, tag_grupo, cor.borda = "black", largura.borda = 1) {
   addPolygons(mapa,
               opacity = 0.5,
               weight = largura.borda,
@@ -157,20 +218,36 @@ adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, 
               label = tooltip,
               popup = janela,
               fillOpacity = 1,
-              group = "municipios-poligono") %>%
+              group = tag_grupo) %>%
     addLegend(position = "bottomright", pal = cores, values = valor.municipio,
               title = titulo,
               opacity = 1)
 }
 
-cria.mapa <- function(dado, valor.municipio, tooltip, janela, cores, titulo, cor.borda = "black", largura.borda = 1) {
+cria.mapa <- function(dado, valor.municipio, tooltip, janela, cores, titulo, tag_grupo, cor.borda = "black", largura.borda = 1) {
   dado %>%
     leaflet() %>%
     addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
-    adiciona.poligonos.e.legenda(cores, valor.municipio, tooltip, janela, titulo, cor.borda, largura.borda)
+    adiciona.poligonos.e.legenda(cores, valor.municipio, tooltip, janela, titulo, tag_grupo, cor.borda, largura.borda)
 }
 
-plot.ranking <- function(dado, municipio) {
+dygraph.tipo.obra <- function(dado, tipo.obra) {
+  renderDygraph({
+    dado %>%
+      filter(tipo_obra == tipo.obra) %>%
+      mutate(custo.efetivo = valor_obra/dimensao) %>%
+      group_by(ano) %>%
+      summarise(
+        custo.efetivo = median(custo.efetivo)
+      ) %>%
+      select(ano, custo.efetivo) %>%
+      dygraph() %>%
+      dyRangeSelector() %>%
+      dyLegend(show = "never")
+  })
+}
+
+plot.ranking.georref <- function(dado, municipio) {
   municipio.selecionado <- dado %>% filter(nome.x == municipio)
 
   plot <- dado %>%
@@ -205,6 +282,45 @@ plot.ranking <- function(dado, municipio) {
       data = filter(dado, municipio == nome.x),
       aes(label = "selecionado"),
       y = max(top.25$porc.georref) / 2
+    ) +
+    theme_bw()
+}
+
+plot.ranking.tipo.obra <- function(dado, municipio) {
+  municipio.selecionado <- dado %>% filter(nome == municipio)
+
+  plot <- dado %>%
+    arrange(custo.efetivo) %>%
+    head(24) %>%
+    rbind(municipio.selecionado) %>%
+    distinct() %>%
+    ggplot(aes(x = reorder(nome, -custo.efetivo),
+               y = custo.efetivo,
+               fill = custo.efetivo.log)) +
+    geom_bar(stat="identity") +
+    guides(fill=FALSE, colour = FALSE) +
+    labs(x = "Município",
+         y = "Custo efetivo por m2") +
+    scale_fill_distiller(palette = "YlOrRd", direction = 1) +
+    coord_flip() +
+    theme(legend.position="bottom")
+
+  top.25 <- dado %>% arrange(custo.efetivo) %>% head(25)
+
+  if ((top.25 %>% filter(municipio == nome) %>% ungroup() %>% count()) == 0) {
+    plot <- plot +
+      labs(title = "Top 24 municípios com menor \ncusto efetivo + selecionado") +
+      facet_grid(nome == municipio ~ ., scales = "free_y", space = "free_y")
+  } else {
+    plot <- plot +
+      labs(title = "Top 25 municípios com menor \ncusto efetivo")
+  }
+
+  plot +
+    geom_text(
+      data = filter(dado, municipio == nome),
+      aes(label = "selecionado"),
+      y = max(top.25$custo.efetivo) / 2
     ) +
     theme_bw()
 }
