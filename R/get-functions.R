@@ -250,11 +250,14 @@ dygraph.tipo.obra <- function(dado, tipo.obra) {
 plot.ranking.georref <- function(dado, municipio) {
   municipio.selecionado <- dado %>% filter(nome.x == municipio)
 
-  plot <- dado %>%
+  top.24.selecionado <- dado %>%
     arrange(-porc.georref) %>%
     head(24) %>%
     rbind(municipio.selecionado) %>%
     distinct() %>%
+    mutate(class = ifelse(nome.x == municipio, "selecionado", "top 24"))
+
+  plot <- top.24.selecionado %>%
     ggplot(aes(x = reorder(nome.x, porc.georref),
                y = porc.georref,
                fill = porc.georref)) +
@@ -271,7 +274,7 @@ plot.ranking.georref <- function(dado, municipio) {
   if ((top.25 %>% filter(municipio == nome.x) %>% ungroup() %>% count()) == 0) {
     plot <- plot +
       labs(title = "Top 24 municípios que mais \ngeorreferenciam + selecionado") +
-      facet_grid(nome.x == municipio ~ ., scales = "free_y", space = "free_y")
+      facet_grid(class ~ ., scales = "free_y", space = "free_y")
   } else {
     plot <- plot +
       labs(title = "Top 25 municípios que mais \ngeorreferenciam")
@@ -279,7 +282,7 @@ plot.ranking.georref <- function(dado, municipio) {
 
   plot +
     geom_text(
-      data = filter(dado, municipio == nome.x),
+      data = filter(top.24.selecionado, municipio == nome.x),
       aes(label = "selecionado"),
       y = max(top.25$porc.georref) / 2
     ) +
@@ -289,11 +292,14 @@ plot.ranking.georref <- function(dado, municipio) {
 plot.ranking.tipo.obra <- function(dado, municipio) {
   municipio.selecionado <- dado %>% filter(nome == municipio)
 
-  plot <- dado %>%
+  top.24.selecionado <- dado %>%
     arrange(custo.efetivo) %>%
     head(24) %>%
     rbind(municipio.selecionado) %>%
     distinct() %>%
+    mutate(class = ifelse(nome == municipio, "selecionado", "top 24"))
+
+  plot <- top.24.selecionado %>%
     ggplot(aes(x = reorder(nome, -custo.efetivo),
                y = custo.efetivo,
                fill = custo.efetivo.log)) +
@@ -310,7 +316,7 @@ plot.ranking.tipo.obra <- function(dado, municipio) {
   if ((top.25 %>% filter(municipio == nome) %>% ungroup() %>% count()) == 0) {
     plot <- plot +
       labs(title = "Top 24 municípios com menor \ncusto efetivo + selecionado") +
-      facet_grid(nome == municipio ~ ., scales = "free_y", space = "free_y")
+      facet_grid(class ~ ., scales = "free_y", space = "free_y")
   } else {
     plot <- plot +
       labs(title = "Top 25 municípios com menor \ncusto efetivo")
@@ -318,7 +324,7 @@ plot.ranking.tipo.obra <- function(dado, municipio) {
 
   plot +
     geom_text(
-      data = filter(dado, municipio == nome),
+      data = filter(top.24.selecionado, municipio == nome),
       aes(label = "selecionado"),
       y = max(top.25$custo.efetivo) / 2
     ) +
