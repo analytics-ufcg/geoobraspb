@@ -314,3 +314,19 @@ plot.ranking.tipo.obra <- function(dado, municipio) {
     ) +
     theme_bw()
 }
+
+cidade.default <- function(dado, nome) {
+    dado %>%
+        arrange_(nome) %>%
+        head(1) %>%
+        pull(nome)
+}
+
+add.borda <- function(dado, municipio.selecionado, cor.destacada = "blue", cor.default = "black", borda.destacada = 5, borda.default = 1) {
+    dado %>%
+        mutate(
+            cor.borda = if_else(nome == municipio.selecionado, cor.destacada, cor.default),
+            largura.borda = if_else(nome == municipio.selecionado, borda.destacada, borda.default)
+        )
+}
+
