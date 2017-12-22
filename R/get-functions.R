@@ -264,12 +264,15 @@ plot.ranking.georref <- function(dado, municipio) {
       labs(title = "Top 25 municípios que mais \ngeorreferenciam")
   }
 
+  if (nrow(municipio.selecionado) > 0) {
+    plot <- plot +
+      geom_text(
+        data = filter(top.24.selecionado, municipio == nome.x),
+        aes(label = "selecionado"),
+        y = max(top.25$porc.georref) / 2
+      )
+  }
   plot +
-    geom_text(
-      data = filter(top.24.selecionado, municipio == nome.x),
-      aes(label = "selecionado"),
-      y = max(top.25$porc.georref) / 2
-    ) +
     theme_bw()
 }
 
@@ -306,12 +309,16 @@ plot.ranking.tipo.obra <- function(dado, municipio) {
       labs(title = "Top 25 municípios com menor \ncusto efetivo")
   }
 
+  if (nrow(municipio.selecionado) > 0) {
+    plot <- plot +
+      geom_text(
+        data = filter(top.24.selecionado, municipio == nome),
+        aes(label = "selecionado"),
+        y = max(top.25$custo.efetivo) / 2
+      )
+  }
+
   plot +
-    geom_text(
-      data = filter(top.24.selecionado, municipio == nome),
-      aes(label = "selecionado"),
-      y = max(top.25$custo.efetivo) / 2
-    ) +
     theme_bw()
 }
 
