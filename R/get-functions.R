@@ -98,7 +98,11 @@ get.mapa.paraiba.georref <- function(mapa_paraiba, municipios.georref.porc) {
 
   mapa_paraiba_georreferenciada@data <- mapa_paraiba_georreferenciada@data %>%
     left_join(municipios.georref.porc,
-              by = c("GEOCODIG_M" = "codigo_ibge"))
+              by = c("GEOCODIG_M" = "codigo_ibge")) %>%
+    mutate(
+      cor.borda = if_else(is.na(cor.borda), "black", cor.borda),
+      largura.borda = if_else(is.na(largura.borda), 1, largura.borda)
+    )
 
   mapa_paraiba_georreferenciada
 }
@@ -171,7 +175,11 @@ get.mapa.paraiba.custo.efetivo <- function(mapa_paraiba, municipios.custo.efetiv
 
   mapa_paraiba_custo_efetivo@data <- mapa_paraiba_custo_efetivo@data %>%
     left_join(municipios.custo.efetivo,
-              by = c("GEOCODIG_M" = "codigo_ibge"))
+              by = c("GEOCODIG_M" = "codigo_ibge")) %>%
+    mutate(
+      cor.borda = if_else(is.na(cor.borda), "black", cor.borda),
+      largura.borda = if_else(is.na(largura.borda), 1, largura.borda)
+    )
 
   mapa_paraiba_custo_efetivo
 }
