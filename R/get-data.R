@@ -19,6 +19,14 @@ library(rgdal)
 library(rgeos)
 library(sp)
 
+#' @title get.data
+#' @description Realiza consultas SQL e obtém os dados necessários
+#' dos bancos de dados do TCE. Realiza também joins e manipulações com os
+#' dados obtidos para gerar dataframes necessários posteriormente.
+#' @param con1 Uma conexão com a base de dados vigia do TCE.
+#' @param con2 Uma conexão com a base de dados cabobranco do TCE.
+#' @param mapa_paraiba ShapeFile do mapa da Paraíba.
+#' @export
 get.data <- function(con1, con2, mapa_paraiba) {
   obra <<- dbGetQuery(con1, "select * from t_obra")
   acompanhamento <<- dbGetQuery(con1, "select * from t_acompanhamento")
@@ -69,6 +77,19 @@ get.data <- function(con1, con2, mapa_paraiba) {
       filter(!duplicated(fk_obra))
 }
 
+#' @title get.georreferencia.inputada
+#' @description Retorna um dataframe das obras da Paraíba. Adiciona localização no centro do
+#' município para obras que não especificam o georreferenciamento e para obras que especificam
+#' o georreferenciamento fora da Paraíba ou fora do município especificado. Adiciona também a coluna
+#' is.inputado para indicar quais obras tiveram as coordenadas alteradas.
+#' @param obra Dataframe que representa a tabela obra da base de dados
+#' @param localidade Dataframe que representa a tabela localidade da base de dados
+#' @param tipos.das.obras Dataframe que representa a tabela tipo_obra da base de dados
+#' @param municipios Dataframe com os municipios da Paraíba
+#' @param obra.georref.centroide.sumarizado Um dataframe com apenas as obras georreferenciadas
+#' onde a localização é sumarizada para o centroide dos pontos caso haja mais de um.
+#' @param ano.inicio Ano mínimo das obras, só serão retornadas obras deste ano em diante.
+#' @export
 get.georreferencia.inputada <- function(obra, localidade, tipos.das.obras, municipios, obra.georref.centroide.sumarizado, ano.inicio) {
     obra %>%
         left_join(localidade, by = c("fk_localidade" = "id")) %>%
