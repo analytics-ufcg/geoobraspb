@@ -319,6 +319,7 @@ adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, 
   if(length(valores.legenda) == 1) {
     valores.legenda[2] <- valores.legenda[1] + 0.0000000001
   }
+  valores.legenda[length(valores.legenda) + 1] <- NA
 
   bins <- ifelse(length(valores.legenda) <= 7, length(valores.legenda), 7)
 
