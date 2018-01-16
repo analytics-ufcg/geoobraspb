@@ -202,6 +202,14 @@ paleta.de.cores <- function(paleta = "YlOrRd", dado, reverse = FALSE) {
 }
 
 adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, janela, titulo, tag_grupo, cor.borda = "black", largura.borda = 1) {
+  valores.legenda <- Filter(function(x) !is.na(x), valor.municipio)
+
+  if(length(valores.legenda) == 1) {
+    valores.legenda[2] <- valores.legenda[1] + 0.0000000001
+  }
+
+  bins <- ifelse(length(valores.legenda) <= 7, length(valores.legenda), 7)
+
   addPolygons(mapa,
               opacity = 0.5,
               weight = largura.borda,
@@ -211,7 +219,7 @@ adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, 
               popup = janela,
               fillOpacity = 1,
               group = tag_grupo) %>%
-    addLegend(position = "bottomright", pal = cores, values = valor.municipio,
+    addLegend(position = "bottomright", pal = cores, values = valores.legenda, bins = bins,
               title = titulo,
               opacity = 1)
 }
