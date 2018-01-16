@@ -151,12 +151,20 @@ get.custos.efetivos <- function(dado) {
 }
 
 get.custo.efetivo.tipo.obra <- function(dado, municipio.selecionado, tipo.obra = "PAVIMENTAÇÃO PARALEPÍPEDO", ano.inicial = 0, ano.final = 3000) {
+  anos.tipo.obra <- dado %>% filter(tipo_obra == tipo.obra.selecionada) %>% pull(ano)
+
+  if (ano.inicial.tipo.obra <= anos.tipo.obra %>% max() && ano.final.tipo.obra >= anos.tipo.obra %>% min()) {
+    dado <- dado %>%
+      filter(
+        ano >= ano.inicial,
+        ano <= ano.final
+        )
+  }
+
   dado %>%
     filter(
-      tipo_obra == tipo.obra,
-      ano >= ano.inicial,
-      ano <= ano.final
-    ) %>%
+      tipo_obra == tipo.obra
+      ) %>%
     select(valor_obra, dimensao, nome, codigo_ibge) %>%
     mutate(custo.efetivo = valor_obra/dimensao) %>%
     group_by(nome, codigo_ibge) %>%
