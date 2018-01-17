@@ -220,9 +220,9 @@ get.custos.efetivos <- function(dado) {
 #' @param ano.final Ano final do intervalo. Valor default = 3000.
 #' @export
 get.custo.efetivo.tipo.obra <- function(dado, municipio.selecionado, tipo.obra = "PAVIMENTAÇÃO PARALEPÍPEDO", ano.inicial = 0, ano.final = 3000) {
-  anos.tipo.obra <- dado %>% filter(tipo_obra == tipo.obra.selecionada) %>% pull(ano)
+  anos.tipo.obra <- dado %>% filter(tipo_obra == tipo.obra) %>% pull(ano)
 
-  if (ano.inicial.tipo.obra <= anos.tipo.obra %>% max() && ano.final.tipo.obra >= anos.tipo.obra %>% min()) {
+  if (ano.inicial <= anos.tipo.obra %>% max() && ano.final >= anos.tipo.obra %>% min()) {
     dado <- dado %>%
       filter(
         ano >= ano.inicial,
