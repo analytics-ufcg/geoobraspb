@@ -153,12 +153,13 @@ get.mapa.paraiba.georref <- function(mapa_paraiba, municipios.georref.porc) {
 #' @description Analise um dataset com obras e retorna dados sumarizados
 #' sobre a quantidade de obras georreferenciadas em cada município.
 #' @param dado Dataset com as obras que se deseja analisar
+#' @param localidade.desc Dataset que contém municípios, microrregiões e mesorregiões.
 #' @param municipio.selecionado Município selecionado, parametro utilizado apenas pelo mapa,
 #' o valor default é João Pessoa.
 #' @param ano.inicial Ano inicial, apenas obras neste ano ou após ele serão analisadas.
 #' @param ano.final Ano final, apenas obras neste ano ou antes dele serão analisadas.
 #' @export
-get.porc.municipios.georref <- function(dado, municipio.selecionado = 'João Pessoa', ano.inicial = 0, ano.final = 3000) {
+get.porc.municipios.georref <- function(dado, localidades.desc, municipio.selecionado = 'João Pessoa', ano.inicial = 0, ano.final = 3000) {
   dado %>%
     filter(ano >= ano.inicial,
            ano <= ano.final) %>%
@@ -175,7 +176,8 @@ get.porc.municipios.georref <- function(dado, municipio.selecionado = 'João Pes
     mutate(
       cor.borda = if_else(nome.x == municipio.selecionado, "blue", "black"),
       largura.borda = if_else(nome.x == municipio.selecionado, 5, 1)
-    )
+    ) %>%
+    left_join(localidades.desc, by = "codigo_ibge")
 }
 
 #' @title get.top.10.tipo.obra
