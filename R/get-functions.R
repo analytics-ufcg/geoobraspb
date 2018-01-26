@@ -310,10 +310,17 @@ paleta.de.cores <- function(paleta = "YlOrRd", dado, reverse = FALSE) {
 #' @param janela Janela do popup.
 #' @param titulo Titulo exibido no mapa.
 #' @param tag_grupo Tag do grupo.
+#' @param cod.localidades Código do município de acordo com o IBGE
+#' @param localidade.selecionada Localidade selecionada no mapa
+#' @param tipo.localidade Tipo da localidade selecionada, onde pode ser
+#' municipio, microrregiao ou mesorregiao
+#' @param localidades.desc Descrição das localidades, a qual contém
+#' código do IBGE, nome, microrregião e mesorregião do município
 #' @param cor.borda Cor da borda exibida no mapa.
 #' @param largura.borda Largura da borda exibida no mapa.
 #' @export
-adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, janela, titulo, tag_grupo, cor.borda = "black", largura.borda = 1) {
+adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, janela, titulo, tag_grupo, cod.localidades,
+                                         localidade.selecionada, tipo.localidade, localidades.desc, cor.borda = "black", largura.borda = 1) {
   valores.legenda <- Filter(function(x) !is.na(x), valor.municipio)
 
   if(length(valores.legenda) == 1) {
@@ -323,10 +330,21 @@ adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, 
 
   bins <- ifelse(length(valores.legenda) <= 7, length(valores.legenda), 7)
 
+  if (tipo.localidade != "municipio") {
+    if (tipo.localidade == "microrregiao") {
+      municipios.localidade <- localidades.desc %>% filter(microregiao == localidade.selecionada) %>% pull(codigo_ibge)
+    } else {
+      municipios.localidade <- localidades.desc %>% filter(mesoregiao == localidade.selecionada) %>% pull(codigo_ibge)
+    }
+    deve.ser.branco <- lapply(cod.localidades, function(l) !(l %in% municipios.localidade))
+  } else {
+    deve.ser.branco <- lapply(cod.localidades, function(l) FALSE)
+  }
+
   addPolygons(mapa,
               opacity = 0.5,
               weight = largura.borda,
-              fillColor = cores(valor.municipio),
+              fillColor = ifelse(deve.ser.branco, "white", cores(valor.municipio)),
               color = cor.borda,
               label = tooltip,
               popup = janela,
