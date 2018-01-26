@@ -129,24 +129,43 @@ centroide <- function(localizacao) {
   coords
 }
 
-#' @title get.mapa.paraiba.georref
+#' @title get.mapa.paraiba
 #' @description Retorna um ShapeFile do mapa da Paraíba já contendo dados sobre
 #' as obras de cada município.
 #' @param mapa_paraiba ShapeFile do mapa da Paraíba
-#' @param municipios.georref.porc Dataframe com dados sumarizados sobre as obras de cada município.
+#' @param dados.complementares Dataframe com dados sumarizados sobre as obras de cada município.
+#' @param tipo.localidade Tipo de localidade selecionada, que pode ser municipio, microrregiao
+#' ou mesorregiao.
+#' @param localidade.selecionada Localidade selecionada de acordo com o tipo da localidade.
 #' @export
-get.mapa.paraiba.georref <- function(mapa_paraiba, municipios.georref.porc) {
-  mapa_paraiba_georreferenciada <- mapa_paraiba
+get.mapa.paraiba <- function(mapa_paraiba, dados.complementares, tipo.localidade, localidade.selecionada) {
+  mapa_paraiba_complementada <- mapa_paraiba
 
-  mapa_paraiba_georreferenciada@data <- mapa_paraiba_georreferenciada@data %>%
-    left_join(municipios.georref.porc,
-              by = c("GEOCODIG_M" = "codigo_ibge")) %>%
-    mutate(
-      cor.borda = if_else(is.na(cor.borda), "black", cor.borda),
-      largura.borda = if_else(is.na(largura.borda), 1, largura.borda)
-    )
+  mapa_paraiba_complementada@data <- mapa_paraiba_complementada@data %>%
+    left_join(dados.complementares,
+              by = c("GEOCODIG_M" = "codigo_ibge"))
 
-  mapa_paraiba_georreferenciada
+  if (tipo.localidade == "microrregiao") {
+    mapa_paraiba_complementada@data <- mapa_paraiba_complementada@data %>%
+      mutate(
+        cor.borda = if_else(microregiao == localidade.selecionada, "blue", "black"),
+        largura.borda = if_else(microregiao == localidade.selecionada, 2, 1)
+      )
+  } else if (tipo.localidade == "mesorregiao") {
+    mapa_paraiba_complementada@data <- mapa_paraiba_complementada@data %>%
+      mutate(
+        cor.borda = if_else(mesoregiao == localidade.selecionada, "blue", "black"),
+        largura.borda = if_else(mesoregiao == localidade.selecionada, 2, 1)
+      )
+  } else {
+    mapa_paraiba_complementada@data <- mapa_paraiba_complementada@data %>%
+      mutate(
+        cor.borda = if_else(is.na(cor.borda), "black", cor.borda),
+        largura.borda = if_else(is.na(largura.borda), 1, largura.borda)
+      )
+  }
+
+  mapa_paraiba_complementada
 }
 
 #' @title get.porc.municipios.georref
@@ -247,27 +266,6 @@ get.custo.efetivo.tipo.obra <- function(dado, municipio.selecionado, tipo.obra =
       cor.borda = if_else(nome == municipio.selecionado, "blue", "black"),
       largura.borda = if_else(nome == municipio.selecionado, 5, 1)
     )
-}
-
-#' @title get.mapa.paraiba.custo.efetivo
-#' @description Retorna um ShapeFile do mapa da Paraíba. já contendo
-#' dados sonre o custo efetivo das obras.
-#' @param mapa_paraiba ShapeFile do mapa da Paraíba.
-#' @param municipios.custo.efetivo Dataframe com dados sobre o custo efetivo
-#' das obras de cada município exibido no mapa.
-#' @export
-get.mapa.paraiba.custo.efetivo <- function(mapa_paraiba, municipios.custo.efetivo) {
-  mapa_paraiba_custo_efetivo <- mapa_paraiba
-
-  mapa_paraiba_custo_efetivo@data <- mapa_paraiba_custo_efetivo@data %>%
-    left_join(municipios.custo.efetivo,
-              by = c("GEOCODIG_M" = "codigo_ibge")) %>%
-    mutate(
-      cor.borda = if_else(is.na(cor.borda), "black", cor.borda),
-      largura.borda = if_else(is.na(largura.borda), 1, largura.borda)
-    )
-
-  mapa_paraiba_custo_efetivo
 }
 
 #' @title get.popup.georref
