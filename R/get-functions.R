@@ -364,10 +364,17 @@ adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, 
 #' @param cores Cores a serem usadas no mapa.
 #' @param titulo Titulo mostrado no mapa.
 #' @param tag_grupo Tag do grupo.
+#' #' @param cod.localidades Código do município de acordo com o IBGE
+#' @param localidade.selecionada Localidade selecionada no mapa
+#' @param tipo.localidade Tipo da localidade selecionada, onde pode ser
+#' municipio, microrregiao ou mesorregiao
+#' @param localidades.desc Descrição das localidades, a qual contém
+#' código do IBGE, nome, microrregião e mesorregião do município
 #' @param cor.borda Cor da borda.
 #' @param largura.borda Largura da borda
 #' @export
-cria.mapa <- function(dado, valor.municipio, tooltip, janela, cores, titulo, tag_grupo, cor.borda = "black", largura.borda = 1) {
+cria.mapa <- function(dado, valor.municipio, tooltip, janela, cores, titulo, tag_grupo, cod.localidades,
+                      localidade.selecionada, tipo.localidade, localidades.desc, cor.borda = "black", largura.borda = 1) {
   dado %>%
     leaflet() %>%
     addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
