@@ -148,14 +148,14 @@ get.mapa.paraiba <- function(mapa_paraiba, dados.complementares, tipo.localidade
   if (tipo.localidade == "microrregiao") {
     mapa_paraiba_complementada@data <- mapa_paraiba_complementada@data %>%
       mutate(
-        cor.borda = if_else(microregiao == localidade.selecionada, "blue", "black"),
-        largura.borda = if_else(microregiao == localidade.selecionada, 2, 1)
+        cor.borda = if_else(Nome_Micro == localidade.selecionada, "blue", "black"),
+        largura.borda = if_else(Nome_Micro == localidade.selecionada, 2, 1)
       )
   } else if (tipo.localidade == "mesorregiao") {
     mapa_paraiba_complementada@data <- mapa_paraiba_complementada@data %>%
       mutate(
-        cor.borda = if_else(mesoregiao == localidade.selecionada, "blue", "black"),
-        largura.borda = if_else(mesoregiao == localidade.selecionada, 2, 1)
+        cor.borda = if_else(Nome_Meso == localidade.selecionada, "blue", "black"),
+        largura.borda = if_else(Nome_Meso == localidade.selecionada, 2, 1)
       )
   } else {
     mapa_paraiba_complementada@data <- mapa_paraiba_complementada@data %>%
