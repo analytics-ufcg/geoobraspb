@@ -408,30 +408,39 @@ dygraph.tipo.obra <- function(dado, tipo.obra) {
 #' @description Plota um gráfico do ranking dos municípios com mais obras georreferenciadas.
 #' @param dado Dataframe com dados das obras.
 #' @param municipio Nome do município.
+#' @param tipo.dado.representado Tipo do dado representado, o qual pode ser relativo ou absoluto.
 #' @export
-plot.ranking.georref <- function(dado, municipio) {
+plot.ranking.georref <- function(dado, municipio, tipo.dado.representado) {
   municipio.selecionado <- dado %>% filter(nome.x == municipio)
 
+  if (tipo.dado.representado == "relativo") {
+    dado.var <- "porc.georref"
+    legenda.eixo.y <- "Obras georreferenciadas (%)"
+  } else {
+    dado.var <- "qtde.georref"
+    legenda.eixo.y <- "Obras georreferenciadas"
+  }
+
   top.24.selecionado <- dado %>%
-    arrange(-porc.georref) %>%
+    arrange_(paste0("-", dado.var)) %>%
     head(24) %>%
     rbind(municipio.selecionado) %>%
     distinct() %>%
     mutate(class = ifelse(nome.x == municipio, "selecionado", "top 24"))
 
   plot <- top.24.selecionado %>%
-    ggplot(aes(x = reorder(nome.x, porc.georref),
-               y = porc.georref,
-               fill = porc.georref)) +
+    ggplot(aes_string(x = paste("reorder(nome.x, ", dado.var, ")"),
+                      y = dado.var,
+                      fill = dado.var)) +
     geom_bar(stat="identity") +
     guides(fill=FALSE, colour = FALSE) +
     labs(x = "Município",
-         y = "Obras georreferenciadas (%)") +
+         y = legenda.eixo.y) +
     scale_fill_distiller(palette = "YlOrRd") +
     coord_flip() +
     theme(legend.position="bottom")
 
-  top.25 <- dado %>% arrange(-porc.georref) %>% head(25)
+  top.25 <- dado %>% arrange_(paste0("-", dado.var)) %>% head(25)
 
   if ((top.25 %>% filter(municipio == nome.x) %>% ungroup() %>% count()) == 0) {
     plot <- plot +
@@ -447,7 +456,7 @@ plot.ranking.georref <- function(dado, municipio) {
       geom_text(
         data = filter(top.24.selecionado, municipio == nome.x),
         aes(label = "selecionado"),
-        y = max(top.25$porc.georref) / 2
+        y = max(top.25 %>% pull(dado.var)) / 2
       )
   }
   plot +
