@@ -321,7 +321,7 @@ paleta.de.cores <- function(paleta = "YlOrRd", dado, reverse = FALSE) {
 #' @export
 adiciona.poligonos.e.legenda <- function(mapa, cores, valor.municipio, tooltip, janela, titulo, tag_grupo, cod.localidades,
                                          localidade.selecionada, tipo.localidade, localidades.desc, cor.borda = "black", largura.borda = 1) {
-  valores.legenda <- Filter(function(x) !is.na(x), valor.municipio)
+  valores.legenda <- Filter(function(x) !is.na(x), valor.municipio) %>% unique()
 
   if(length(valores.legenda) == 1) {
     valores.legenda[2] <- valores.legenda[1] + 0.0000000001
