@@ -77,6 +77,24 @@ get.data <- function(con1, con2, mapa_paraiba) {
       filter(!duplicated(fk_obra))
 }
 
+#' @title get.data.faltantes
+#' @description Realiza consultas SQL e obtém os dados necessários
+#' dos bancos de dados do TCE. Realiza também joins e manipulações com os
+#' dados obtidos para gerar dataframes necessários posteriormente.
+#' @param con1 Uma conexão com a base de dados vigia do TCE.
+#' @param con2 Uma conexão com a base de dados cabobranco do TCE.
+#' @param mapa_paraiba ShapeFile do mapa da Paraíba.
+#' @export
+get.data.faltantes <- function(con1, con2, mapa_paraiba) {
+    get.data(con1, con2, mapa_paraiba)
+    obra.fotos <<- dbGetQuery(con1, "select fa.fk_obra, (fa.num_foto + fm.num_foto) as num_fotos 
+                                     from (select fk_obra, count(arquivo) as num_foto from t_foto_acompanhamento group by fk_obra) fa, 
+                                     (select fk_obra, count(arquivo) as num_foto from t_foto_medicao group by fk_obra) fm 
+                                     where fa.fk_obra = fm.fk_obra")
+    obra.medicao <<- dbGetQuery(con1, "select fk_obra, planilha_medicoes from t_medicao")
+    obra.art <<- dbGetQuery(con1, "select fk_obra, numero_art from t_regularidade")
+} 
+
 #' @title get.georreferencia.inputada
 #' @description Retorna um dataframe das obras da Paraíba. Adiciona localização no centro do
 #' município para obras que não especificam o georreferenciamento e para obras que especificam
