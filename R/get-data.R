@@ -87,10 +87,11 @@ get.data <- function(con1, con2, mapa_paraiba) {
 #' @export
 get.data.faltantes <- function(con1, con2, mapa_paraiba) {
     get.data(con1, con2, mapa_paraiba)
-    obra.fotos <<- dbGetQuery(con1, "select fa.fk_obra, (fa.num_foto + fm.num_foto) as num_fotos 
-                                     from (select fk_obra, count(arquivo) as num_foto from t_foto_acompanhamento group by fk_obra) fa, 
+    obra.fotos <<- dbGetQuery(con1, "select o.id, fa.num_foto as num_fotos_acompanhamento, fm.num_foto as num_fotos_medicao
+                                     from t_obra o,
+                                     (select fk_obra, count(arquivo) as num_foto from t_foto_acompanhamento group by fk_obra) fa, 
                                      (select fk_obra, count(arquivo) as num_foto from t_foto_medicao group by fk_obra) fm 
-                                     where fa.fk_obra = fm.fk_obra")
+                                     where o.id = fa.fk_obra and o.id = fm.fk_obra")
     obra.medicao <<- dbGetQuery(con1, "select fk_obra, planilha_medicoes from t_medicao")
     obra.art <<- dbGetQuery(con1, "select fk_obra, numero_art from t_regularidade")
 } 
