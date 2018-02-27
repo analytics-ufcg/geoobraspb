@@ -94,7 +94,7 @@ get.data.faltantes <- function(con1, con2, mapa_paraiba) {
                                      where o.id = fa.fk_obra and o.id = fm.fk_obra")
     obra.medicao <<- dbGetQuery(con1, "select fk_obra, planilha_medicoes, situacao, data_final from t_medicao")
     obra.art <<- dbGetQuery(con1, "select fk_obra, numero_art from t_regularidade")
-    obra.proj.basico <<- dbGetQuery(con1, "select fk_obra, projeto_basico from t_recurso_proprio")
+    obra.proj.basico <<- dbGetQuery(con1, "select distinct fk_obra, projeto_basico from t_recurso_proprio")
 } 
 
 #' @title get.georreferencia.inputada
