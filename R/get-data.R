@@ -120,6 +120,7 @@ get.georreferencia.inputada <- function(obra, localidade, tipos.das.obras, munic
         ) %>%
         left_join(tipos.das.obras, by = c("fk_tipo_obra" = "id")) %>%
         left_join(municipios, by = "codigo_ibge") %>%
+        left_join(acompanhamento, by = c("id"="fk_obra"))  %>% 
         left_join(obra.georref.centroide.sumarizado %>% select(fk_obra,lat,lon, dentro_municipio), by = c("id" = "fk_obra")) %>%
         mutate(
             lat = ifelse(is.na(lat.y), lat.x, lat.y),
